@@ -160,9 +160,11 @@
   .portrait { width: min(100%, 26vw); aspect-ratio: 4 / 5; object-fit: cover; object-position: 75% 50%; }
   .info .bio { font-size: 19px; line-height: 1.45; letter-spacing: -0.01em; max-width: 42ch; }
   .info .bio p + p { margin-top: 1em; }
-  .info dl { margin-top: 48px; display: grid; grid-template-columns: 130px 1fr; row-gap: 10px; font-size: 15px; }
-  .info dt { text-transform: uppercase; font-size: 12px; letter-spacing: .06em; padding-top: 2px; }
-  .info dd a { border-bottom: 1px solid currentColor; }
+  .contact { margin-top: 48px; display: flex; flex-direction: column; gap: 18px; }
+  .contact .email { align-self: flex-start; font-size: 20px; letter-spacing: -0.01em; border-bottom: 1px solid currentColor; padding-bottom: 2px; }
+  .socials { display: flex; flex-wrap: wrap; gap: 8px 26px; font-size: 12px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; }
+  .socials a { border-bottom: 1px solid transparent; padding-bottom: 2px; }
+  .socials a:hover, .socials a:focus-visible { border-bottom-color: currentColor; }
 
   /* ---------- Bottom nav ---------- */
   .nav {
@@ -232,15 +234,16 @@
           <p>He is half of the comedy writing and directing duo Book of Jam with Ibrahim Clayton, making shorts for BBC Studios, BBC Scotland and BBC Three, including <em>A Better Place</em>, <em>I Shoulda' Died!</em> and <em>The Comeback</em>. His short <em>Antonio's Tale</em> won Best Director at the St Andrews Film Festival.</p>
           <p>As a composer and music producer he has scored work for Fielmann, Issey Miyake Parfums and Habitat × Pinterest, blending orchestral writing with electronics, field recordings and texture. He holds a Master's with Distinction in Sound for the Moving Image from the Glasgow School of Art, where he later lectured.</p>
         </div>
-        <dl>
-          <dt>Clients</dt><dd>BBC, Issey Miyake, Pinterest</dd>
-          <dt>Email</dt><dd><a href="mailto:jacobtopen@gmail.com">jacobtopen@gmail.com</a></dd>
-          <dt>Vimeo</dt><dd><a href="https://vimeo.com/jacobtopen" target="_blank" rel="noopener">vimeo.com/jacobtopen</a></dd>
-          <dt>Spotify</dt><dd><a href="https://open.spotify.com/artist/4xWslAraxMlDHTaWze7PTZ" target="_blank" rel="noopener">Jacob Topen</a></dd>
-          <dt>SoundCloud</dt><dd><a href="https://soundcloud.com/user-jst" target="_blank" rel="noopener">soundcloud.com/user-jst</a></dd>
-          <dt>Instagram</dt><dd><a href="https://www.instagram.com/jacobtopenmusic" target="_blank" rel="noopener">@jacobtopenmusic</a></dd>
-          <dt>IMDb</dt><dd><a href="https://www.imdb.com/name/nm8167026/" target="_blank" rel="noopener">Jacob Topen</a></dd>
-        </dl>
+        <div class="contact">
+          <a class="email" href="mailto:jacobtopen@gmail.com">jacobtopen@gmail.com</a>
+          <p class="socials">
+            <a href="https://vimeo.com/jacobtopen" target="_blank" rel="noopener">Vimeo</a>
+            <a href="https://open.spotify.com/artist/4xWslAraxMlDHTaWze7PTZ" target="_blank" rel="noopener">Spotify</a>
+            <a href="https://soundcloud.com/user-jst" target="_blank" rel="noopener">SoundCloud</a>
+            <a href="https://www.instagram.com/jacobtopenmusic" target="_blank" rel="noopener">Instagram</a>
+            <a href="https://www.imdb.com/name/nm8167026/" target="_blank" rel="noopener">IMDb</a>
+          </p>
+        </div>
       </div>
     </div>
   </section>
