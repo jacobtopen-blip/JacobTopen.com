@@ -400,6 +400,11 @@ const ICON_PLAY = `<svg viewBox="0 0 26 26" fill="none" stroke="currentColor" st
 const ICON_ARROW = `<svg viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.4">
   <path d="M2 9 9 2M3.5 2H9v5.5"/></svg>`;
 
+/* mix a #rrggbb colour toward a soft grey-white by amount 0–1 */
+const lift = (hex, amt) => "#" + [1, 3, 5].map(i => {
+  const c = parseInt(hex.slice(i, i + 2), 16);
+  return Math.round(c + (214 - c) * amt).toString(16).padStart(2, "0");
+}).join("");
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
 const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 function embedFor(m) {
@@ -416,7 +421,8 @@ const lastYear = y => Math.max(0, ...(String(y).match(/\d{4}/g) || []).map(Numbe
 PROJECTS.sort((a, b) => lastYear(b.year) - lastYear(a.year));   // newest first
 list.innerHTML = PROJECTS.map((p, i) => {
   const id = slug(p.title);
-  const tone = TONES[(p.tone ?? i) % TONES.length];
+  // hover gradient: the image's colours, lifted on the left, deepening to the right
+  const tone = p.bg ? [lift(p.bg[0], 0.35), p.bg[0], p.bg[2]] : TONES[(p.tone ?? i) % TONES.length];
   const grad = `linear-gradient(90deg, ${tone.join(", ")})`;
   const still = p.still || (p.thumb ? `https://i.vimeocdn.com/video/${p.thumb}` : "");
   const players = [
