@@ -349,8 +349,7 @@ const PROJECTS = [
     credits: "Directed by Jacob Topen & Ibrahim Clayton\nBBC Studios",
     about: "Alfie is desperate to make his boxing comeback.",
     youtube: "d1vQt1f3QDM",
-    links: [{ label: "YouTube", href: "https://www.youtube.com/watch?v=d1vQt1f3QDM" },
-            { label: "bookofjam.com", href: "https://www.bookofjam.com" }],
+    links: [{ label: "bookofjam.com", href: "https://www.bookofjam.com" }],
     still: "https://static.wixstatic.com/media/af8620_17f1e264593f4ad283141f1dbe48f6fe~mv2.jpg/v1/fill/w_1920,h_1080,al_c,q_85/af8620_17f1e264593f4ad283141f1dbe48f6fe~mv2.jpg",
     awards: "Honourable Mention: London-Worldwide Comedy Short Film Festival 2021\nShort Stuff · BBC Scotland Comedy" },
 
@@ -463,7 +462,6 @@ list.innerHTML = PROJECTS.map((p, i) => {
     `<button class="track media-btn" type="button" data-src="${esc(m.src)}" data-audio="${m.audio ? 1 : ""}" aria-current="${j === 0}">${ICON_PLAY}<span>${esc(m.name)}</span></button>`).join("") : "";
   const first = players[0];
   const links = [
-    ...(p.vimeo ? [{ label: "Vimeo", href: `https://vimeo.com/${p.vimeo}` }] : []),
     ...(p.links || []),
   ].map(l => `<a href="${esc(l.href)}" target="_blank" rel="noopener">${esc(l.label)} ${ICON_ARROW}</a>`).join("");
 
