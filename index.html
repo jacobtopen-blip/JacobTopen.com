@@ -64,13 +64,6 @@
   .row:hover::after, .row:focus-visible::after, .project.open .row::after { opacity: .55; }
   .row:focus-visible { outline: none; }
 
-  .row-thumb {                /* small still beside the year, on hover */
-    position: absolute; top: 50%; left: calc(50% + 6vw);
-    height: calc(100% - 18px); aspect-ratio: 16 / 9; width: auto;
-    object-fit: cover; transform: translateY(-50%);
-    opacity: 0; transition: opacity .35s ease; pointer-events: none;
-  }
-  .row:hover .row-thumb, .row:focus-visible .row-thumb, .project.open .row-thumb { opacity: 1; }
   .title {
     font-weight: 700;
     font-size: 2.25vw;
@@ -114,6 +107,22 @@
   }
   .media { position: relative; aspect-ratio: 16 / 9; background: #000; }
   .media.audio { aspect-ratio: auto; height: 352px; background: transparent; }
+  .poster {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    background: #000 center / cover no-repeat; cursor: pointer;
+  }
+  .poster::before {            /* play button */
+    content: ""; position: absolute; left: 50%; top: 50%;
+    width: 64px; height: 64px; margin: -32px 0 0 -32px; border-radius: 50%;
+    border: 1.5px solid rgba(255,255,255,.9); background: rgba(0,0,0,.25);
+    transition: transform .25s ease, background .25s ease;
+  }
+  .poster::after {
+    content: ""; position: absolute; left: 50%; top: 50%;
+    margin: -11px 0 0 -6px; border-style: solid; border-width: 11px 0 11px 18px;
+    border-color: transparent transparent transparent #fff;
+  }
+  .poster:hover::before, .poster:focus-visible::before { transform: scale(1.08); background: rgba(0,0,0,.4); }
   .media iframe, .media video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #000; }
   .stage-content { display: flex; flex-direction: column; gap: 2vw; min-width: 0; }
   .stage.no-media { min-height: 33vw; }   /* still only, until a video is added */
@@ -182,7 +191,7 @@
     :root { --row-h: 20vw; --nav-h: 76px; --gutter: 16px; }
     .row { grid-template-columns: 1fr auto; column-gap: 16px; }
     .title { font-size: 18px; text-align: center; }
-    .credits, .row-thumb { display: none; }
+    .credits { display: none; }
     .year { font-size: 13px; }
     .stage { grid-template-columns: 1fr; gap: 24px; padding: 20px var(--gutter) 32px; }
     .stage.no-media { min-height: 70vw; align-content: end; }
@@ -412,7 +421,6 @@ list.innerHTML = PROJECTS.map((p, i) => {
   const tone = TONES[(p.tone ?? i) % TONES.length];
   const grad = `linear-gradient(90deg, ${tone.join(", ")})`;
   const still = p.still || (p.thumb ? `https://i.vimeocdn.com/video/${p.thumb}` : "");
-  const small = still.replace("w_1920,h_1080,al_c,q_85", "w_480,h_270,al_c,q_80").replace("-d_1280", "-d_640");
   const players = [
     ...(p.vimeo || p.youtube || p.mp4 ? [{ name: p.tracks || "Film", vimeo: p.vimeo, youtube: p.youtube, mp4: p.mp4 }] : []),
     ...(p.spotify ? [{ name: "Listen", spotify: p.spotify }] : []),
@@ -431,7 +439,6 @@ list.innerHTML = PROJECTS.map((p, i) => {
   return `
   <article class="project" id="${id}" data-roles="${p.roles.join(" ")}" style="--grad:${grad}">
     <button class="row" type="button" aria-expanded="false" aria-controls="panel-${i}">
-      ${small ? `<img class="row-thumb" src="${esc(small)}" alt="" loading="lazy">` : ""}
       <span class="title">${esc(p.title)}</span>
       <span class="year">${esc(p.year)}</span>
       <span class="credits">${esc(p.credits || "")}</span>
@@ -440,7 +447,7 @@ list.innerHTML = PROJECTS.map((p, i) => {
       <div class="panel-inner">
         <div class="stage${first ? "" : " no-media"}">
           ${still ? `<img class="stage-img" data-src="${esc(still)}" alt="">` : ""}
-          ${first ? `<div class="media${first.audio ? " audio" : ""}" data-src="${esc(first.src)}"></div>` : ""}
+          ${first ? `<div class="media${first.audio ? " audio" : ""}" data-src="${esc(first.src)}" data-poster="${first.audio ? "" : esc(still)}"></div>` : ""}
           <div class="stage-content">
             ${p.role ? `<p class="role">${esc(p.role)}</p>` : ""}
             ${p.about ? `<p class="about">${esc(p.about)}</p>` : ""}
@@ -456,11 +463,18 @@ list.innerHTML = PROJECTS.map((p, i) => {
 
 /* ---------- accordion (one open at a time) ---------- */
 /* the player is created on open and removed on close, so nothing keeps playing */
-function loadPlayer(media, src, audio) {
+function loadPlayer(media, src, audio, autoplay) {
   media.classList.toggle("audio", !!audio);
+  if (autoplay && !audio && !/\.mp4($|\?)/.test(src)) src += (src.includes("?") ? "&" : "?") + "autoplay=1";
   media.innerHTML = /\.mp4($|\?)/.test(src)
-    ? `<video src="${src}" controls playsinline preload="metadata"></video>`
+    ? `<video src="${src}" controls playsinline preload="metadata"${autoplay ? " autoplay" : ""}></video>`
     : `<iframe src="${src}" loading="lazy" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
+}
+/* show the still with a play button; the video loads when it's clicked */
+function showPoster(media, src) {
+  media.classList.remove("audio");
+  media.dataset.current = src;
+  media.innerHTML = `<button class="poster" type="button" aria-label="Play" style="background-image:url('${media.dataset.poster}')"></button>`;
 }
 function setOpen(project, open) {
   project.classList.toggle("open", open);
@@ -472,7 +486,9 @@ function setOpen(project, open) {
   if (open) {
     const btn = project.querySelector(".media-btn");
     project.querySelectorAll(".media-btn").forEach((b, j) => b.setAttribute("aria-current", j === 0));
-    loadPlayer(media, media.dataset.src, btn ? btn.dataset.audio : media.classList.contains("audio"));
+    const audio = btn ? btn.dataset.audio : media.classList.contains("audio");
+    if (media.dataset.poster && !audio) showPoster(media, media.dataset.src);
+    else loadPlayer(media, media.dataset.src, audio);
   } else {
     media.innerHTML = "";
   }
@@ -491,11 +507,18 @@ list.addEventListener("click", e => {
     return;
   }
 
+  const poster = e.target.closest(".poster");
+  if (poster) {
+    const media = poster.closest(".media");
+    loadPlayer(media, media.dataset.current, false, true);
+    return;
+  }
+
   const mbtn = e.target.closest(".media-btn");
   if (mbtn) {
     const stage = mbtn.closest(".stage");
     stage.querySelectorAll(".media-btn").forEach(b => b.setAttribute("aria-current", b === mbtn));
-    loadPlayer(stage.querySelector(".media"), mbtn.dataset.src, mbtn.dataset.audio);
+    loadPlayer(stage.querySelector(".media"), mbtn.dataset.src, mbtn.dataset.audio, true);
   }
 });
 
