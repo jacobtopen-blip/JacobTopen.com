@@ -13,7 +13,7 @@
 <meta property="og:type" content="website">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #fff;
@@ -178,10 +178,10 @@
     height: 28px; pointer-events: none;
     background: linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,.09));
   }
-  .brand { font-size: 22px; letter-spacing: -0.02em; text-transform: uppercase; white-space: nowrap; }
+  .brand { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; text-transform: uppercase; white-space: nowrap; }
   .nav ul { list-style: none; display: flex; gap: 43px; }
   .nav li a {
-    font-size: 11px; letter-spacing: .05em; text-transform: uppercase;
+    font-size: 12px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase;
     padding-bottom: 3px; border-bottom: 1px solid transparent;
   }
   .nav li a:hover, .nav li a[aria-current="page"] { border-bottom-color: currentColor; }
@@ -198,8 +198,9 @@
     .stage.no-media .stage-content { grid-column: 1; }
     .stage-content { gap: 22px; }
     .brand { font-size: 12px; }
-    .nav ul { gap: 13px; }
-    .nav li a { font-size: 10px; }
+    .nav { gap: 16px; }
+    .nav ul { gap: 11px; }
+    .nav li a { font-size: 10px; letter-spacing: .03em; }
     .info { grid-template-columns: 1fr; padding-top: 48px; }
     .info h1 { font-size: 13vw; }
     .portrait { width: 100%; }
