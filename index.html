@@ -66,7 +66,7 @@
   }
   .row::before { background: var(--grad); }
   .row::after { background: var(--grain); mix-blend-mode: overlay; }
-  .row:hover, .row:focus-visible, .project.open .row { color: #eef1f2; }
+  .row:hover, .row:focus-visible, .project.open .row { color: var(--hover-ink, #eef1f2); }
   .row:hover::before, .row:focus-visible::before, .project.open .row::before { opacity: 1; }
   .row:hover::after, .row:focus-visible::after, .project.open .row::after { opacity: .55; }
   .row:focus-visible { outline: none; }
@@ -103,8 +103,9 @@
   }
   .stage::after {              /* cool darkening + grain so white text reads */
     content: ""; position: absolute; inset: 0; z-index: -1;
-    background: var(--grain), linear-gradient(90deg, rgba(10,16,20,.45), rgba(10,16,20,.7));
+    background: var(--grain), linear-gradient(90deg, rgba(10,16,20,.1), rgba(10,16,20,.5));
     background-blend-mode: overlay, normal;
+    opacity: .45;
   }
   .media { position: relative; aspect-ratio: 16 / 9; background: #000; }
   .media.audio { aspect-ratio: auto; height: 352px; background: transparent; }
@@ -279,28 +280,28 @@
    ===================================================================== */
 const PROJECTS = [
   /* ----- Commercials ----- */
-  { title: "Issey Miyake: Lumière d'Issey", bg: ["#995f33", "#51351f", "#1f150d"], year: "2025", roles: ["editor", "composer"],
+  { title: "Issey Miyake: Lumière d'Issey", color: [14, 95, 70, 1], year: "2025", roles: ["editor", "composer"],
     role: "Music Supervisor · Director's Assistant\nCo-Editor (with Ed Cook)",
     credits: "TVC\nDirected by Marcus Tomlinson\nRadicalMedia London",
     vimeo: 1190474676,
     awards: "Agency: McCann Paris\nTrack: Clann - 'Arise'",
     still: "images/lumiere.jpg" },
 
-  { title: "Issey Miyake: The Making of Lumière d'Issey", pick: 2, bg: ["#5f554e", "#342f2b", "#151312"], year: "2025", roles: ["editor", "composer"],
+  { title: "Issey Miyake: The Making of Lumière d'Issey", pick: 2, color: [24, 100, 50, 0], year: "2025", roles: ["editor", "composer"],
     role: "Editor · Original Music · BTS Camera",
     credits: "Behind the scenes\nDirected by Marcus Tomlinson\nRadicalMedia London",
     about: "Chasing the perfect sunrise: light and optics captured in-camera through practical effects.",
     mp4: "https://video.wixstatic.com/video/af8620_4156a79267b4423792841fcd2b879827/1080p/mp4/file.mp4",
     still: "https://static.wixstatic.com/media/af8620_0203bb1744b842378ea4f204a9604c04~mv2.png/v1/fill/w_1920,h_1080,al_c,q_85/af8620_0203bb1744b842378ea4f204a9604c04~mv2.png" },
 
-  { title: "Fielmann Vision Care", pick: 3, bg: ["#a39429", "#564f1a", "#211e0c"], year: "2026", roles: ["composer"],
+  { title: "Fielmann Vision Care", pick: 3, color: [48, 100, 50, 1], year: "2026", roles: ["composer"],
     role: "Composer: US & International TVC, Social",
     credits: "Fielmann Group\nDirected by Marcus Tomlinson\nRadicalMedia London",
     mp4: "https://video.wixstatic.com/video/af8620_77b41c27891b42378ce8ea29d3e4e5d9/720p/mp4/file.mp4", tracks: "TVC",
     links: [{ label: "YouTube", href: "https://www.youtube.com/watch?v=YpIi2MRrhWU" }],
     still: "https://static.wixstatic.com/media/af8620_c133b4cbb69e47dba5b69e46fe57980c~mv2.png/v1/fill/w_1920,h_1080,al_c,q_85/af8620_c133b4cbb69e47dba5b69e46fe57980c~mv2.png" },
 
-  { title: "Habitat × Pinterest", bg: ["#3d2a14", "#21170c", "#120d08"], year: "2025", roles: ["composer"],
+  { title: "Habitat × Pinterest", color: [334, 90, 55, 0], year: "2025", roles: ["composer"],
     role: "Music Producer: TVC",
     credits: "The Intruder\nDirected by Coral Amy Brown\nRadicalMedia London",
     about: "A new version of 'L'amour est un oiseau rebelle' (Habanera) from Bizet's Carmen.",
@@ -308,7 +309,7 @@ const PROJECTS = [
     awards: "Agency: DRUM London",
     still: "https://static.wixstatic.com/media/af8620_13a4758682b04ba5b6ef4e85acc080fc~mv2.png/v1/fill/w_1920,h_1080,al_c,q_85/af8620_13a4758682b04ba5b6ef4e85acc080fc~mv2.png" },
 
-  { title: "Issey Miyake: Le Sel d'Issey", bg: ["#25262d", "#141518", "#0c0c0e"], year: "2024", roles: ["composer", "editor"],
+  { title: "Issey Miyake: Le Sel d'Issey", color: [192, 85, 40, 0], year: "2024", roles: ["composer", "editor"],
     role: "Original Music & Sound: Behind the Scenes\nEditor / Post Coordinator · Art Assistant",
     credits: "Directed by Marcus Tomlinson\nRadicalMedia London",
     about: "Sound frequencies used on set to form cymatic patterns in salt.",
@@ -317,7 +318,7 @@ const PROJECTS = [
     still: "https://static.wixstatic.com/media/af8620_eaf661104c7d4f8fa9514b4c073c78bd~mv2.webp/v1/fill/w_1920,h_1080,al_c,q_85/af8620_eaf661104c7d4f8fa9514b4c073c78bd~mv2.webp" },
 
   /* ----- Book of Jam (comedy duo with Ibrahim Clayton) ----- */
-  { title: "Book of Jam", pick: 6, bg: ["#583421", "#2f1d14", "#120c08"], year: "2018-2026", roles: ["director"],
+  { title: "Book of Jam", pick: 6, bg: ["#e0102a", "#8a0717", "#2e0207"], hover: ["#e8102a", "#a10a1e", "#3d0309"], year: "2018-2026", roles: ["director"],
     role: "Co-Director · Co-Writer",
     credits: "Comedy writing & directing duo\nJacob Topen & Ibrahim Clayton",
     about: "Making comedy together since 2018. All of our films live at bookofjam.com.",
@@ -326,7 +327,7 @@ const PROJECTS = [
     links: [{ label: "bookofjam.com", href: "https://www.bookofjam.com" },
             { label: "Instagram", href: "https://www.instagram.com/bookofjam_/" }] },
 
-  { title: "A Better Place", pick: 1, bg: ["#69472a", "#382719", "#16100b"], year: "2023", roles: ["director", "editor", "composer"],
+  { title: "A Better Place", pick: 1, color: [242, 85, 58, 0], year: "2023", roles: ["director", "editor", "composer"],
     role: "Co-Director · Co-Writer · Actor\nEditor · Composer",
     credits: "Directed by Jacob Topen & Ibrahim Clayton\nBBC Comedy Short Films",
     about: "An oddball family devise a plan to save their failing funeral home from a business rival.",
@@ -336,7 +337,7 @@ const PROJECTS = [
     links: [{ label: "BBC iPlayer", href: "https://www.bbc.co.uk/iplayer/episode/p0fmj927/bbc-comedy-short-films-a-better-place" }],
     awards: "BBC Three · BBC Scotland · BBC iPlayer" },
 
-  { title: "I Shoulda' Died!", bg: ["#35301c", "#1d1a10", "#100f0a"], year: "2023", roles: ["director", "editor"],
+  { title: "I Shoulda' Died!", color: [82, 75, 45, 1], year: "2023", roles: ["director", "editor"],
     role: "Co-Director · Co-Writer · Actor\nEditor",
     credits: "Directed by Jacob Topen & Ibrahim Clayton\nBBC Studios",
     vimeo: 709565796, thumb: "2109134746-00c4abd9413509e154029e1dc9303628b3c8030d0899a92f4a1d921511f288b8-d_1280",
@@ -344,7 +345,7 @@ const PROJECTS = [
             { label: "bookofjam.com", href: "https://www.bookofjam.com" }],
     awards: "Book of Jam · Short Stuff · BBC Scotland" },
 
-  { title: "The Comeback: Now or Never", bg: ["#25252d", "#141418", "#0c0c0e"], year: "2020", roles: ["director", "editor", "composer"],
+  { title: "The Comeback: Now or Never", color: [262, 85, 76, 1], year: "2020", roles: ["director", "editor", "composer"],
     role: "Co-Director · Co-Writer · Actor\nEditor · Composer",
     credits: "Directed by Jacob Topen & Ibrahim Clayton\nBBC Studios",
     about: "Alfie is desperate to make his boxing comeback.",
@@ -354,7 +355,7 @@ const PROJECTS = [
     still: "https://static.wixstatic.com/media/af8620_17f1e264593f4ad283141f1dbe48f6fe~mv2.jpg/v1/fill/w_1920,h_1080,al_c,q_85/af8620_17f1e264593f4ad283141f1dbe48f6fe~mv2.jpg",
     awards: "Short Stuff · BBC Scotland Comedy" },
 
-  { title: "The Troon Revelations", pick: 7, bg: ["#403434", "#231d1d", "#0e0c0c"], year: "2021", roles: ["director", "editor", "composer"],
+  { title: "The Troon Revelations", pick: 7, color: [172, 90, 33, 0], year: "2021", roles: ["director", "editor", "composer"],
     role: "Co-Director · Co-Writer · Actor\nEditor · Composer",
     credits: "Directed by Jacob Topen & Ibrahim Clayton\nSufi Machine Pictures / Dark & Stormy Films",
     about: "Self-declared prophet Dr Kyle Wright claims he has been called to Troon by the ghost of Robbie Burns, tasked with restoring the true gospel for the sake of all mankind.",
@@ -364,27 +365,27 @@ const PROJECTS = [
     still: "images/troon.jpg" },
 
   /* ----- Film ----- */
-  { title: "Gathering Light", bg: ["#252a2d", "#141718", "#0c0d0e"], year: "2026", roles: ["director", "composer"],
+  { title: "Gathering Light", color: [288, 70, 50, 0], year: "2026", roles: ["director", "composer"],
     role: "Director · Camera · Composer",
     credits: "Directed by Jacob Topen\nA portrait of Jennifer Alford",
     about: "A portrait of Jennifer Alford exploring her intuitive approach to pottery, shaped by memories of the landscape around her and the local clays she works with. Through improvisation and experimentation, each piece emerges organically, as she responds to the material and discovers the form along the way.\n\n“I love that moment of chance…”\n\nDirected and shot on location in Scotland by Jacob Topen.",
     vimeo: 1212510534,
     still: "https://static.wixstatic.com/media/af8620_1df87bd6dcd541c9988c3b2c93fbcd4f~mv2.jpg/v1/fill/w_1920,h_1080,al_c,q_85/af8620_1df87bd6dcd541c9988c3b2c93fbcd4f~mv2.jpg" },
 
-  { title: "Landmarks", pick: 4, bg: ["#695521", "#382e14", "#161209"], year: "2026", roles: ["director", "editor", "composer"],
+  { title: "Landmarks", pick: 4, color: [138, 70, 40, 0], year: "2026", roles: ["director", "editor", "composer"],
     role: "Director · Editor · Composer",
     credits: "Directed by Jacob Topen\nA portrait of artist Nael Hanna",
     about: "A deeply personal portrait film of artist Nael Hanna, exploring his way of seeing the world, his passion for capturing its beauty on canvas, and the role of faith within his work. Shot on location in Scotland.",
     vimeo: 1193411229,
     still: "https://static.wixstatic.com/media/af8620_d6e324e8418e47dcaf5072bc724162d8~mv2.jpg/v1/fill/w_1920,h_1080,al_c,q_85/af8620_d6e324e8418e47dcaf5072bc724162d8~mv2.jpg" },
 
-  { title: "Hidden Maverick", bg: ["#2d2525", "#181414", "#0e0c0c"], year: "2025", roles: ["editor", "composer"],
+  { title: "Hidden Maverick", color: [300, 70, 32, 0], year: "2025", roles: ["editor", "composer"],
     role: "Editor · Composer",
     credits: "All-Purpose Moisturiser",
     youtube: "Phm52OffLQk",
     still: "https://static.wixstatic.com/media/af8620_2062aafcbeac482289abc2e9b815e285~mv2.png/v1/fill/w_1920,h_1080,al_c,q_85/af8620_2062aafcbeac482289abc2e9b815e285~mv2.png" },
 
-  { title: "Antonio's Tale", pick: 5, bg: ["#456d87", "#283c48", "#11181c"], year: "2018", roles: ["director", "editor"],
+  { title: "Antonio's Tale", pick: 5, color: [214, 95, 52, 0], year: "2018", roles: ["director", "editor"],
     role: "Writer · Director · Editor",
     credits: "Written & Directed by Jacob Topen\nDark & Stormy Films",
     about: "A stylised exploration of Alzheimer's disease, the importance of storytelling, and the fleeting nature of life. Shot on the West Coast of Scotland, near Troon.",
@@ -393,7 +394,7 @@ const PROJECTS = [
     awards: "Winner: Best Director, St Andrews Film Festival 2019\nNominee: Best Editing, Best Score, Scottish Short Film Festival 2019\nNominee: Best Short, INDIs Film Festival 2019" },
 
   /* ----- Original music & solo releases ----- */
-  { title: "Original Music", bg: ["#5c7068", "#333d39", "#151817"], year: "Solo", roles: ["composer"],
+  { title: "Original Music", color: [160, 60, 70, 1], year: "Solo", roles: ["composer"],
     role: "Composer",
     credits: "Original music & solo releases\nby Jacob Topen",
     about: "Electronic, contemporary classical and ambient music.",
@@ -420,6 +421,7 @@ const ICON_PLAY = `<svg viewBox="0 0 26 26" fill="none" stroke="currentColor" st
 const ICON_ARROW = `<svg viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.4">
   <path d="M2 9 9 2M3.5 2H9v5.5"/></svg>`;
 
+const hsl = (h, s, l) => `hsl(${h} ${Math.round(s)}% ${Math.max(5, Math.min(90, l))}%)`;
 /* mix a #rrggbb colour toward a soft grey-white by amount 0–1 */
 const lift = (hex, amt) => "#" + [1, 3, 5].map(i => {
   const c = parseInt(hex.slice(i, i + 2), 16);
@@ -442,7 +444,11 @@ PROJECTS.sort((a, b) => lastYear(b.year) - lastYear(a.year));   // newest first
 list.innerHTML = PROJECTS.map((p, i) => {
   const id = slug(p.title);
   // hover gradient: the image's colours, lifted on the left, deepening to the right
-  const tone = p.bg ? [lift(p.bg[0], 0.35), p.bg[0], p.bg[2]] : TONES[(p.tone ?? i) % TONES.length];
+  const c = p.color;   // [hue, saturation, lightness, dark text on hover]
+  const tone = p.hover || (c ? [hsl(c[0], c[1], c[2] + 10), hsl(c[0], c[1], c[2]), hsl(c[0], c[1], c[2] - 30)]
+    : p.bg ? [lift(p.bg[0], 0.35), p.bg[0], p.bg[2]] : TONES[(p.tone ?? i) % TONES.length]);
+  const stage = c ? `linear-gradient(120deg, ${hsl(c[0], c[1], c[2])}, ${hsl(c[0], c[1] * 0.9, c[2] - 20)}, ${hsl(c[0], c[1] * 0.8, 7)})`
+    : p.bg ? `linear-gradient(120deg, ${p.bg.join(", ")})` : null;
   const grad = `linear-gradient(90deg, ${tone.join(", ")})`;
   const still = p.still || (p.thumb ? `https://i.vimeocdn.com/video/${p.thumb}` : "");
   const players = [
@@ -461,7 +467,7 @@ list.innerHTML = PROJECTS.map((p, i) => {
   ].map(l => `<a href="${esc(l.href)}" target="_blank" rel="noopener">${esc(l.label)} ${ICON_ARROW}</a>`).join("");
 
   return `
-  <article class="project" id="${id}" data-roles="${p.roles.join(" ")}" data-pick="${p.pick || ""}" style="--grad:${grad};--stage:${p.bg ? `linear-gradient(120deg, ${p.bg.join(", ")})` : grad}">
+  <article class="project" id="${id}" data-roles="${p.roles.join(" ")}" data-pick="${p.pick || ""}" style="--grad:${grad};--stage:${stage || grad}${c && c[3] ? ";--hover-ink:#111" : ""}">
     <button class="row" type="button" aria-expanded="false" aria-controls="panel-${i}">
       <span class="title">${esc(p.title)}</span>
       <span class="year">${esc(p.year)}</span>
