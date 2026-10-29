@@ -1,0 +1,525 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jacob Topen</title>
+<meta name="description" content="Jacob Topen — director, editor and composer.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fff;
+    --fg: #000;
+    --line: #000;
+    --nav-h: 86px;
+    --row-h: 6.5vw;
+    --gutter: 4vw;
+    --ease: cubic-bezier(.2,.7,.2,1);
+    /* film grain, used on hover rows and the open panel */
+    --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 1.1 -.25'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-font-smoothing: antialiased; }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: "Inter Tight", "Helvetica Neue", Arial, sans-serif;
+    overflow-x: hidden;
+  }
+  a { color: inherit; text-decoration: none; }
+  button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+
+  /* ---------- Project list ---------- */
+  main { padding-bottom: calc(var(--nav-h) + 40px); }
+  .view[hidden], .project[hidden] { display: none; }
+
+  .project { border-bottom: 1px solid var(--line); }
+
+  .row {
+    position: relative;
+    display: grid;
+    grid-template-columns: 50% 20% 30%;
+    align-items: center;
+    width: 100%;
+    min-height: var(--row-h);
+    padding: 14px var(--gutter);
+    text-align: left;
+    isolation: isolate;
+    transition: color .35s ease;
+  }
+  .row::before,               /* hover gradient */
+  .row::after {               /* grain on top of it */
+    content: "";
+    position: absolute; inset: 0;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity .35s ease;
+  }
+  .row::before { background: var(--grad); }
+  .row::after { background: var(--grain); mix-blend-mode: overlay; }
+  .row:hover, .row:focus-visible, .project.open .row { color: #eef1f2; }
+  .row:hover::before, .row:focus-visible::before, .project.open .row::before { opacity: 1; }
+  .row:hover::after, .row:focus-visible::after, .project.open .row::after { opacity: .55; }
+  .row:focus-visible { outline: none; }
+
+  .row-thumb {                /* small still beside the year, on hover */
+    position: absolute; top: 50%; left: calc(50% + 6vw);
+    height: calc(100% - 18px); aspect-ratio: 16 / 9; width: auto;
+    object-fit: cover; transform: translateY(-50%);
+    opacity: 0; transition: opacity .35s ease; pointer-events: none;
+  }
+  .row:hover .row-thumb, .row:focus-visible .row-thumb, .project.open .row-thumb { opacity: 1; }
+  .title {
+    font-weight: 700;
+    font-size: 2.25vw;
+    letter-spacing: -0.035em;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+  .year, .credits { font-size: 15px; letter-spacing: -0.01em; line-height: 1.15; }
+  .credits { white-space: pre-line; }
+
+  /* ---------- Expanded panel ---------- */
+  .panel {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows .6s var(--ease);
+  }
+  .project.open .panel { grid-template-rows: 1fr; border-top: 1px solid var(--line); }
+  .panel-inner { overflow: hidden; min-height: 0; }
+
+  .stage {
+    position: relative;
+    display: grid;
+    grid-template-columns: 60% 1fr;
+    gap: 4vw;
+    align-items: center;
+    padding: 3.5vw var(--gutter);
+    background: var(--grad);
+    color: #fff;
+    isolation: isolate;
+  }
+  .stage-img {                 /* the still sits behind the player, darkened */
+    position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%;
+    object-fit: cover;
+    filter: blur(3px) saturate(.7) contrast(1.05);
+    transform: scale(1.04);
+  }
+  .stage::after {              /* cool darkening + grain so white text reads */
+    content: ""; position: absolute; inset: 0; z-index: -1;
+    background: var(--grain), linear-gradient(90deg, rgba(10,16,20,.45), rgba(10,16,20,.7));
+    background-blend-mode: overlay, normal;
+  }
+  .media { position: relative; aspect-ratio: 16 / 9; background: #000; }
+  .media.audio { aspect-ratio: auto; height: 352px; background: transparent; }
+  .media iframe, .media video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #000; }
+  .stage-content { display: flex; flex-direction: column; gap: 2vw; min-width: 0; }
+  .stage.no-media { min-height: 33vw; }   /* still only, until a video is added */
+  .stage.no-media .stage-img { filter: saturate(.8); transform: none; }
+  .stage.no-media .stage-content { grid-column: 2; }
+  .role { font-size: 14px; line-height: 1.5; letter-spacing: .01em; white-space: pre-line; opacity: .9; }
+  .about { font-size: 14px; line-height: 1.4; max-width: 38ch; white-space: pre-line; }
+  .tracks { display: flex; flex-direction: column; gap: 14px; }
+  .track {
+    display: inline-flex; align-items: center; gap: 18px;
+    font-size: 14px; color: #fff; text-align: left;
+  }
+  .track svg { width: 26px; height: 26px; flex: none; }
+  .track:hover span, .track[aria-current="true"] span { text-decoration: underline; text-underline-offset: 3px; }
+  .track[aria-current="true"] { font-weight: 500; }
+
+  .links { display: flex; flex-wrap: wrap; gap: 8px 34px; font-size: 14px; }
+  .links a { display: inline-flex; align-items: center; gap: 8px; }
+  .links a:hover { text-decoration: underline; text-underline-offset: 3px; }
+  .links svg { width: 11px; height: 11px; }
+  .awards { font-size: 13px; line-height: 1.4; opacity: .85; max-width: 40ch; white-space: pre-line; }
+
+  /* ---------- Info page ---------- */
+  .info {
+    min-height: calc(100vh - var(--nav-h));
+    display: grid; grid-template-columns: 50% 50%;
+    padding: 8vw var(--gutter) 0;
+    gap: 4vw;
+  }
+  .info h1 {
+    font-size: 4.5vw; font-weight: 700; letter-spacing: -0.04em;
+    line-height: .95; text-transform: uppercase;
+  }
+  .info-side { display: flex; flex-direction: column; gap: 3vw; align-items: flex-start; }
+  .portrait { width: min(100%, 26vw); aspect-ratio: 4 / 5; object-fit: cover; object-position: 75% 50%; }
+  .info .bio { font-size: 19px; line-height: 1.45; letter-spacing: -0.01em; max-width: 42ch; }
+  .info .bio p + p { margin-top: 1em; }
+  .info dl { margin-top: 48px; display: grid; grid-template-columns: 130px 1fr; row-gap: 10px; font-size: 15px; }
+  .info dt { text-transform: uppercase; font-size: 12px; letter-spacing: .06em; padding-top: 2px; }
+  .info dd a { border-bottom: 1px solid currentColor; }
+
+  /* ---------- Bottom nav ---------- */
+  .nav {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
+    height: var(--nav-h);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 var(--gutter);
+    background: var(--bg);
+    border-top: 1px solid var(--line);
+  }
+  .nav::before {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 100%;
+    height: 28px; pointer-events: none;
+    background: linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,.09));
+  }
+  .brand { font-size: 22px; letter-spacing: -0.02em; text-transform: uppercase; white-space: nowrap; }
+  .nav ul { list-style: none; display: flex; gap: 43px; }
+  .nav li a {
+    font-size: 11px; letter-spacing: .05em; text-transform: uppercase;
+    padding-bottom: 3px; border-bottom: 1px solid transparent;
+  }
+  .nav li a:hover, .nav li a[aria-current="page"] { border-bottom-color: currentColor; }
+
+  /* ---------- Mobile ---------- */
+  @media (max-width: 767px) {
+    :root { --row-h: 20vw; --nav-h: 76px; --gutter: 16px; }
+    .row { grid-template-columns: 1fr auto; column-gap: 16px; }
+    .title { font-size: 18px; text-align: center; }
+    .credits, .row-thumb { display: none; }
+    .year { font-size: 13px; }
+    .stage { grid-template-columns: 1fr; gap: 24px; padding: 20px var(--gutter) 32px; }
+    .stage.no-media { min-height: 70vw; align-content: end; }
+    .stage.no-media .stage-content { grid-column: 1; }
+    .stage-content { gap: 22px; }
+    .brand { font-size: 12px; }
+    .nav ul { gap: 13px; }
+    .nav li a { font-size: 10px; }
+    .info { grid-template-columns: 1fr; padding-top: 48px; }
+    .info h1 { font-size: 13vw; }
+    .portrait { width: 100%; }
+    .info .bio { font-size: 17px; }
+  }
+  @media (max-width: 380px) { .brand { display: none; } .nav { justify-content: center; } }
+  @media (prefers-reduced-motion: reduce) {
+    .panel, .row::before, .row::after { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<main>
+  <section class="view" id="view-work" aria-label="Work">
+    <div id="projects"></div>
+  </section>
+
+  <section class="view" id="view-info" aria-label="Info" hidden>
+    <div class="info">
+      <div class="info-side">
+        <h1>Jacob<br>Topen</h1>
+        <!-- Portrait: set src to your photo (an image URL, or a file in this folder such as "jacob.jpg") -->
+        <img class="portrait" src="https://image-cdn-fa.spotifycdn.com/image/ab6761610000e5eb4010035ba5d122209e86af0e" alt="Jacob Topen" hidden>
+      </div>
+      <div>
+        <div class="bio">
+          <p>Jacob Topen is a Scottish director, editor and composer, and an Associate Producer at RadicalMedia London.</p>
+          <p>He is half of the comedy writing and directing duo Book of Jam with Ibrahim Clayton, making shorts for BBC Studios, BBC Scotland and BBC Three, including <em>A Better Place</em>, <em>I Shoulda' Died!</em> and <em>The Comeback</em>. His short <em>Antonio's Tale</em> won Best Director at the St Andrews Film Festival.</p>
+          <p>As a composer and music producer he has scored work for Fielmann, Issey Miyake Parfums and Habitat × Pinterest, blending orchestral writing with electronics, field recordings and texture. He holds a Master's with Distinction in Sound for the Moving Image from the Glasgow School of Art, where he later lectured.</p>
+        </div>
+        <dl>
+          <dt>Clients</dt><dd>BBC, Issey Miyake, Pinterest</dd>
+          <dt>Email</dt><dd><a href="mailto:jacobtopen@gmail.com">jacobtopen@gmail.com</a></dd>
+          <dt>Vimeo</dt><dd><a href="https://vimeo.com/jacobtopen" target="_blank" rel="noopener">vimeo.com/jacobtopen</a></dd>
+          <dt>Spotify</dt><dd><a href="https://open.spotify.com/artist/4xWslAraxMlDHTaWze7PTZ" target="_blank" rel="noopener">Jacob Topen</a></dd>
+          <dt>SoundCloud</dt><dd><a href="https://soundcloud.com/user-jst" target="_blank" rel="noopener">soundcloud.com/user-jst</a></dd>
+          <dt>Instagram</dt><dd><a href="https://www.instagram.com/jacobtopenmusic" target="_blank" rel="noopener">@jacobtopenmusic</a></dd>
+          <dt>IMDb</dt><dd><a href="https://www.imdb.com/name/nm8167026/" target="_blank" rel="noopener">Jacob Topen</a></dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+</main>
+
+<nav class="nav" aria-label="Primary">
+  <a class="brand" href="#all">Jacob Topen</a>
+  <ul>
+    <li><a href="#all" data-view="all">All</a></li>
+    <li><a href="#director" data-view="director">Director</a></li>
+    <li><a href="#editor" data-view="editor">Editor</a></li>
+    <li><a href="#composer" data-view="composer">Composer</a></li>
+    <li><a href="#info" data-view="info">Info</a></li>
+  </ul>
+</nav>
+
+<script>
+/* =====================================================================
+   PROJECTS
+   ---------------------------------------------------------------------
+   roles    – any of "director", "editor", "composer" (drives the nav filters)
+   credits  – right-hand column; \n for a line break
+   role     – what Jacob did, shown at the top of the open panel
+   vimeo    – Vimeo video id; the player loads as soon as the row opens
+   youtube  – YouTube video id (instead of vimeo)
+   mp4      – path to a video file in this folder, e.g. "video/fielmann.mp4"
+   spotify  – Spotify embed path, e.g. "track/ID", "album/ID", "artist/ID"
+   soundcloud – SoundCloud track or playlist URL
+   thumb    – Vimeo thumbnail path (or set `still` to any image URL)
+   extra    – more players, listed as buttons: [{ name, vimeo | youtube | spotify | soundcloud }]
+   links    – [{ label, href }]
+   tone     – optional index into TONES to pick the hover gradient
+   ===================================================================== */
+const PROJECTS = [
+  /* ----- Commercials ----- */
+  { title: "Issey Miyake — Lumière d'Issey", year: "2025", roles: ["composer"],
+    role: "Original Music & BTS Camera — The Making of\nMusic Supervisor — TVC",
+    credits: "Directed by Marcus Tomlinson\nRadicalMedia London",
+    about: "Chasing the perfect sunrise: light and optics captured in-camera through practical effects.",
+    mp4: "https://video.wixstatic.com/video/af8620_4156a79267b4423792841fcd2b879827/1080p/mp4/file.mp4", tracks: "The Making of Lumière d'Issey",
+    extra: [{ name: "Tabletop film — MRMOCO × RadicalMedia", vimeo: 1190474676 }],
+    awards: "Agency: McCann Paris\nTVC track: Clann — 'Arise'",
+    still: "https://static.wixstatic.com/media/af8620_8a72303f116040ab831dfa6c5d773d29~mv2.jpg/v1/fill/w_1920,h_1080,al_c,q_85/af8620_8a72303f116040ab831dfa6c5d773d29~mv2.jpg" },
+
+  { title: "Fielmann Vision Care", year: "2026", roles: ["composer"],
+    role: "Composer — US & International TVC, Social",
+    credits: "Fielmann Group\nDirected by Marcus Tomlinson\nRadicalMedia London",
+    mp4: "https://video.wixstatic.com/video/af8620_77b41c27891b42378ce8ea29d3e4e5d9/720p/mp4/file.mp4", tracks: "TVC",
+    links: [{ label: "YouTube", href: "https://www.youtube.com/watch?v=YpIi2MRrhWU" }],
+    still: "https://static.wixstatic.com/media/af8620_c133b4cbb69e47dba5b69e46fe57980c~mv2.png/v1/fill/w_1920,h_1080,al_c,q_85/af8620_c133b4cbb69e47dba5b69e46fe57980c~mv2.png" },
+
+  { title: "Habitat × Pinterest", year: "2025", roles: ["composer"],
+    role: "Music Producer — TVC",
+    credits: "The Intruder\nDirected by Coral Amy Brown\nRadicalMedia London",
+    about: "A new version of 'L'amour est un oiseau rebelle' (Habanera) from Bizet's Carmen.",
+    mp4: "https://video.wixstatic.com/video/af8620_57160a63640349f19a19a942ea821fbe/1080p/mp4/file.mp4",
+    awards: "Agency: DRUM London",
+    still: "https://static.wixstatic.com/media/af8620_13a4758682b04ba5b6ef4e85acc080fc~mv2.png/v1/fill/w_1920,h_1080,al_c,q_85/af8620_13a4758682b04ba5b6ef4e85acc080fc~mv2.png" },
+
+  { title: "Issey Miyake — Le Sel d'Issey", year: "2024", roles: ["composer", "editor"],
+    role: "Original Music & Sound — Behind the Scenes\nEditor / Post Coordinator · Art Assistant",
+    credits: "Directed by Marcus Tomlinson\nRadicalMedia London",
+    about: "Sound frequencies used on set to form cymatic patterns in salt.",
+    mp4: "https://video.wixstatic.com/video/af8620_fb6467b09bcf4e048bb79a3cc1c9190d/1080p/mp4/file.mp4", tracks: "Behind the Scenes",
+    extra: [{ name: "TVC", youtube: "-6HG_eQ-uwo" }],
+    still: "https://static.wixstatic.com/media/af8620_eaf661104c7d4f8fa9514b4c073c78bd~mv2.webp/v1/fill/w_1920,h_1080,al_c,q_85/af8620_eaf661104c7d4f8fa9514b4c073c78bd~mv2.webp" },
+
+  /* ----- Book of Jam (comedy duo with Ibrahim Clayton) ----- */
+  { title: "Book of Jam", year: "2018–2026", roles: ["director"],
+    role: "Writer / Director",
+    credits: "Comedy writing & directing duo\nJacob Topen & Ibrahim Clayton",
+    about: "Making comedy together since 2018. All of our films live at bookofjam.com.",
+    tracks: "Book of Jam — Sizzle Reel",
+    vimeo: 1126828406, thumb: "2069393782-91b237cc52b9056a9ceb7df47960a7a1059e0e7f63829e059b0a883f9306b9f2-d_1280",
+    links: [{ label: "bookofjam.com", href: "https://www.bookofjam.com" },
+            { label: "Instagram", href: "https://www.instagram.com/bookofjam_/" }] },
+
+  { title: "A Better Place", year: "2023", roles: ["director", "editor", "composer"],
+    role: "Co-Director · Co-Writer · Actor\nEditor · Score Composer",
+    credits: "Directed by Jacob Topen & Ibrahim Clayton\nBBC Comedy Short Films",
+    about: "An oddball family devise a plan to save their failing funeral home from a business rival.",
+    vimeo: 936739974,
+    still: "https://static.wixstatic.com/media/af8620_84919bd8c7ae49f29829eb38d99591f9~mv2.png/v1/fill/w_1920,h_1080,al_c,q_85/af8620_84919bd8c7ae49f29829eb38d99591f9~mv2.png",
+    extra: [{ name: "Score — 'Pater Final Requies'", vimeo: 948121339 }],
+    links: [{ label: "BBC iPlayer", href: "https://www.bbc.co.uk/iplayer/episode/p0fmj927/bbc-comedy-short-films-a-better-place" }],
+    awards: "BBC Three · BBC Scotland · BBC iPlayer" },
+
+  { title: "I Shoulda' Died!", year: "2023", roles: ["director", "editor"],
+    role: "Co-Writer · Co-Director\nPerformer · Editor",
+    credits: "Directed by Jacob Topen & Ibrahim Clayton\nBBC Studios",
+    vimeo: 709565796, thumb: "2109134746-00c4abd9413509e154029e1dc9303628b3c8030d0899a92f4a1d921511f288b8-d_1280",
+    links: [{ label: "YouTube", href: "https://www.youtube.com/watch?v=wqyipyVMAwQ" },
+            { label: "bookofjam.com", href: "https://www.bookofjam.com" }],
+    awards: "Book of Jam · Short Stuff · BBC Scotland" },
+
+  { title: "The Comeback: Now or Never", year: "2020", roles: ["director", "editor", "composer"],
+    role: "Director · Writer · Actor\nEditor · Composer",
+    credits: "Directed by Jacob Topen & Ibrahim Clayton\nBBC Studios",
+    about: "Alfie is desperate to make his boxing comeback.",
+    youtube: "d1vQt1f3QDM",
+    links: [{ label: "YouTube", href: "https://www.youtube.com/watch?v=d1vQt1f3QDM" },
+            { label: "bookofjam.com", href: "https://www.bookofjam.com" }],
+    still: "https://static.wixstatic.com/media/af8620_17f1e264593f4ad283141f1dbe48f6fe~mv2.jpg/v1/fill/w_1920,h_1080,al_c,q_85/af8620_17f1e264593f4ad283141f1dbe48f6fe~mv2.jpg",
+    awards: "Short Stuff · BBC Scotland Comedy" },
+
+  /* ----- Film ----- */
+  { title: "Gathering Light", year: "2026", roles: ["director"],
+    role: "Director · Camera",
+    credits: "Directed by Jacob Topen\nA portrait of Jennifer Alford",
+    about: "A portrait of Jennifer Alford exploring her intuitive approach to pottery, shaped by memories of the landscape around her and the local clays she works with. Through improvisation and experimentation, each piece emerges organically, as she responds to the material and discovers the form along the way.\n\n“I love that moment of chance…”\n\nDirected and shot on location in Scotland by Jacob Topen.",
+    vimeo: 1212510534,
+    still: "https://static.wixstatic.com/media/af8620_1df87bd6dcd541c9988c3b2c93fbcd4f~mv2.jpg/v1/fill/w_1920,h_1080,al_c,q_85/af8620_1df87bd6dcd541c9988c3b2c93fbcd4f~mv2.jpg" },
+
+  { title: "Landmarks", year: "2026", roles: ["director", "editor", "composer"],
+    role: "Director · Editor · Composer",
+    credits: "Directed by Jacob Topen\nA portrait of artist Nael Hanna",
+    about: "A deeply personal portrait film of artist Nael Hanna, exploring his way of seeing the world, his passion for capturing its beauty on canvas, and the role of faith within his work. Shot on location in Scotland.",
+    vimeo: 1193411229,
+    still: "https://static.wixstatic.com/media/af8620_d6e324e8418e47dcaf5072bc724162d8~mv2.jpg/v1/fill/w_1920,h_1080,al_c,q_85/af8620_d6e324e8418e47dcaf5072bc724162d8~mv2.jpg" },
+
+  { title: "Hidden Maverick", year: "2025", roles: ["editor", "composer"],
+    role: "Editor · Composer",
+    credits: "All-Purpose Moisturiser",
+    youtube: "Phm52OffLQk",
+    still: "https://static.wixstatic.com/media/af8620_2062aafcbeac482289abc2e9b815e285~mv2.png/v1/fill/w_1920,h_1080,al_c,q_85/af8620_2062aafcbeac482289abc2e9b815e285~mv2.png" },
+
+  { title: "Antonio's Tale", year: "2018", roles: ["director", "editor"],
+    role: "Writer · Director · Editor",
+    credits: "Written & Directed by Jacob Topen\nDark & Stormy Films",
+    about: "A stylised exploration of Alzheimer's disease, the importance of storytelling, and the fleeting nature of life. Shot on the West Coast of Scotland, near Troon.",
+    vimeo: 263663432,
+    still: "https://static.wixstatic.com/media/af8620_8346863e866e41659d8174fae244a71a~mv2.jpg/v1/fill/w_1920,h_1080,al_c,q_85/af8620_8346863e866e41659d8174fae244a71a~mv2.jpg",
+    awards: "Winner — Best Director, St Andrews Film Festival 2019\nNominee — Best Editing, Best Score, Scottish Short Film Festival 2019\nNominee — Best Short, INDIs Film Festival 2019" },
+
+  /* ----- Original music & solo releases ----- */
+  { title: "Original Music", year: "Solo", roles: ["composer"],
+    role: "Composer",
+    credits: "Original music & solo releases\nby Jacob Topen",
+    about: "Electronic, contemporary classical and ambient music.",
+    mp4: "https://video.wixstatic.com/video/af8620_8b579e00194049ceabbe3b14a6e1c18e/1080p/mp4/file.mp4", tracks: "Sunrise",
+    extra: [{ name: "Solo Releases — Spotify", spotify: "artist/4xWslAraxMlDHTaWze7PTZ" }],
+    links: [{ label: "Spotify", href: "https://open.spotify.com/artist/4xWslAraxMlDHTaWze7PTZ" },
+            { label: "SoundCloud", href: "https://soundcloud.com/user-jst" }],
+    still: "https://static.wixstatic.com/media/af8620_8b579e00194049ceabbe3b14a6e1c18ef003.jpg/v1/fill/w_1920,h_1080,al_c,q_85/af8620_8b579e00194049ceabbe3b14a6e1c18ef003.jpg" },
+];
+
+/* Cool, gritty hover gradients (light → dark). Rows cycle through these. */
+const TONES = [
+  ["#8d9ba3", "#3c4a52", "#161c20"],   // steel
+  ["#7f9a98", "#2f4a4b", "#121a1b"],   // slate teal
+  ["#8a94a8", "#36405a", "#14171f"],   // gunmetal blue
+  ["#9aa596", "#48564a", "#1a1f1b"],   // oxidised green
+  ["#9590a3", "#3f3a52", "#17151d"],   // bruised violet
+  ["#a9b7bf", "#4b6070", "#0f1418"],   // ice / ink
+];
+
+/* ---------- icons ---------- */
+const ICON_PLAY = `<svg viewBox="0 0 26 26" fill="none" stroke="currentColor" stroke-width="1.2">
+  <circle cx="13" cy="13" r="12"/><path d="M10.5 8.5v9l7-4.5z" fill="currentColor"/></svg>`;
+const ICON_ARROW = `<svg viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.4">
+  <path d="M2 9 9 2M3.5 2H9v5.5"/></svg>`;
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+function embedFor(m) {
+  if (m.mp4) return { src: m.mp4, file: true };
+  if (m.vimeo) return { src:`https://player.vimeo.com/video/${m.vimeo}?title=0&byline=0&portrait=0&color=ffffff&dnt=1` };
+  if (m.youtube) return { src: `https://www.youtube-nocookie.com/embed/${m.youtube}?rel=0` };
+  if (m.spotify) return { src: `https://open.spotify.com/embed/${m.spotify}?theme=0`, audio: true };
+  if (m.soundcloud) return { src: `https://w.soundcloud.com/player/?url=${encodeURIComponent(m.soundcloud)}&color=%23ffffff&visual=true`, audio: true };
+}
+
+/* ---------- render ---------- */
+const list = document.getElementById("projects");
+const lastYear = y => Math.max(0, ...(String(y).match(/\d{4}/g) || []).map(Number));   // "2018–2026" sorts as 2026
+PROJECTS.sort((a, b) => lastYear(b.year) - lastYear(a.year));   // newest first
+list.innerHTML = PROJECTS.map((p, i) => {
+  const id = slug(p.title);
+  const tone = TONES[(p.tone ?? i) % TONES.length];
+  const grad = `linear-gradient(90deg, ${tone.join(", ")})`;
+  const still = p.still || (p.thumb ? `https://i.vimeocdn.com/video/${p.thumb}` : "");
+  const small = still.replace("w_1920,h_1080,al_c,q_85", "w_480,h_270,al_c,q_80").replace("-d_1280", "-d_640");
+  const players = [
+    ...(p.vimeo || p.youtube || p.mp4 ? [{ name: p.tracks || "Film", vimeo: p.vimeo, youtube: p.youtube, mp4: p.mp4 }] : []),
+    ...(p.spotify ? [{ name: "Listen", spotify: p.spotify }] : []),
+    ...(p.soundcloud ? [{ name: "Listen", soundcloud: p.soundcloud }] : []),
+    ...(p.extra || []),
+  ].map(m => ({ name: m.name, ...embedFor(m) }));
+  // buttons only when there is more than one thing to play
+  const tracks = players.length > 1 ? players.map((m, j) =>
+    `<button class="track media-btn" type="button" data-src="${esc(m.src)}" data-audio="${m.audio ? 1 : ""}" aria-current="${j === 0}">${ICON_PLAY}<span>${esc(m.name)}</span></button>`).join("") : "";
+  const first = players[0];
+  const links = [
+    ...(p.vimeo ? [{ label: "Vimeo", href: `https://vimeo.com/${p.vimeo}` }] : []),
+    ...(p.links || []),
+  ].map(l => `<a href="${esc(l.href)}" target="_blank" rel="noopener">${esc(l.label)} ${ICON_ARROW}</a>`).join("");
+
+  return `
+  <article class="project" id="${id}" data-roles="${p.roles.join(" ")}" style="--grad:${grad}">
+    <button class="row" type="button" aria-expanded="false" aria-controls="panel-${i}">
+      ${small ? `<img class="row-thumb" src="${esc(small)}" alt="" loading="lazy">` : ""}
+      <span class="title">${esc(p.title)}</span>
+      <span class="year">${esc(p.year)}</span>
+      <span class="credits">${esc(p.credits || "")}</span>
+    </button>
+    <div class="panel" id="panel-${i}" role="region" aria-label="${esc(p.title)}">
+      <div class="panel-inner">
+        <div class="stage${first ? "" : " no-media"}">
+          ${still ? `<img class="stage-img" data-src="${esc(still)}" alt="">` : ""}
+          ${first ? `<div class="media${first.audio ? " audio" : ""}" data-src="${esc(first.src)}"></div>` : ""}
+          <div class="stage-content">
+            ${p.role ? `<p class="role">${esc(p.role)}</p>` : ""}
+            ${p.about ? `<p class="about">${esc(p.about)}</p>` : ""}
+            ${tracks ? `<div class="tracks">${tracks}</div>` : ""}
+            ${links ? `<div class="links">${links}</div>` : ""}
+            ${p.awards ? `<div class="awards">${esc(p.awards)}</div>` : ""}
+          </div>
+        </div>
+      </div>
+    </div>
+  </article>`;
+}).join("");
+
+/* ---------- accordion (one open at a time) ---------- */
+/* the player is created on open and removed on close, so nothing keeps playing */
+function loadPlayer(media, src, audio) {
+  media.classList.toggle("audio", !!audio);
+  media.innerHTML = /\.mp4($|\?)/.test(src)
+    ? `<video src="${src}" controls playsinline preload="metadata"></video>`
+    : `<iframe src="${src}" loading="lazy" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
+}
+function setOpen(project, open) {
+  project.classList.toggle("open", open);
+  project.querySelector(".row").setAttribute("aria-expanded", open);
+  const img = project.querySelector(".stage-img[data-src]");
+  if (open && img) { img.src = img.dataset.src; img.removeAttribute("data-src"); }   // load stills lazily
+  const media = project.querySelector(".media");
+  if (!media) return;
+  if (open) {
+    const btn = project.querySelector(".media-btn");
+    project.querySelectorAll(".media-btn").forEach((b, j) => b.setAttribute("aria-current", j === 0));
+    loadPlayer(media, media.dataset.src, btn ? btn.dataset.audio : media.classList.contains("audio"));
+  } else {
+    media.innerHTML = "";
+  }
+}
+function closeAll(except) {
+  list.querySelectorAll(".project.open").forEach(p => p !== except && setOpen(p, false));
+}
+list.addEventListener("click", e => {
+  const row = e.target.closest(".row");
+  if (row) {
+    const project = row.parentElement;
+    const willOpen = !project.classList.contains("open");
+    closeAll(project);
+    setOpen(project, willOpen);
+    if (willOpen) setTimeout(() => project.scrollIntoView({ behavior: "smooth", block: "start" }), 120);
+    return;
+  }
+
+  const mbtn = e.target.closest(".media-btn");
+  if (mbtn) {
+    const stage = mbtn.closest(".stage");
+    stage.querySelectorAll(".media-btn").forEach(b => b.setAttribute("aria-current", b === mbtn));
+    loadPlayer(stage.querySelector(".media"), mbtn.dataset.src, mbtn.dataset.audio);
+  }
+});
+
+/* ---------- routing: #all, #director, #editor, #composer, #info ---------- */
+const FILTERS = ["all", "director", "editor", "composer"];
+function route() {
+  const hash = location.hash.slice(1) || "all";
+  const view = hash === "info" ? "info" : FILTERS.includes(hash) ? hash : "all";
+  document.getElementById("view-info").hidden = view !== "info";
+  document.getElementById("view-work").hidden = view === "info";
+  closeAll();
+  list.querySelectorAll(".project").forEach(p => {
+    p.hidden = view !== "all" && !p.dataset.roles.split(" ").includes(view);
+  });
+  document.querySelectorAll(".nav [data-view]").forEach(a => {
+    if (a.dataset.view === view) a.setAttribute("aria-current", "page");
+    else a.removeAttribute("aria-current");
+  });
+  window.scrollTo(0, 0);
+}
+const portrait = document.querySelector(".portrait");
+if (portrait.getAttribute("src")) portrait.hidden = false;   // only shows once a photo is set
+window.addEventListener("hashchange", route);
+route();
+</script>
+</body>
+</html>
