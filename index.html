@@ -38,6 +38,7 @@
   button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
 
   /* ---------- Project list ---------- */
+  #projects { display: flex; flex-direction: column; }
   main { padding-bottom: calc(var(--nav-h) + 40px); }
   .view[hidden], .project[hidden] { display: none; }
 
@@ -245,9 +246,9 @@
 </main>
 
 <nav class="nav" aria-label="Primary">
-  <a class="brand" href="#all">Jacob Topen</a>
+  <a class="brand" href="#selected">Jacob Topen</a>
   <ul>
-    <li><a href="#all" data-view="all">All</a></li>
+    <li><a href="#selected" data-view="selected">Selected</a></li>
     <li><a href="#director" data-view="director">Director</a></li>
     <li><a href="#editor" data-view="editor">Editor</a></li>
     <li><a href="#composer" data-view="composer">Composer</a></li>
@@ -281,21 +282,21 @@ const PROJECTS = [
     awards: "Agency: McCann Paris\nTrack: Clann - 'Arise'",
     still: "images/lumiere.jpg" },
 
-  { title: "Issey Miyake: The Making of Lumière d'Issey", bg: ["#5f554e", "#342f2b", "#151312"], year: "2025", roles: ["editor", "composer"],
+  { title: "Issey Miyake: The Making of Lumière d'Issey", pick: 2, bg: ["#5f554e", "#342f2b", "#151312"], year: "2025", roles: ["editor", "composer"],
     role: "Editor · Original Music · BTS Camera",
     credits: "Behind the scenes\nDirected by Marcus Tomlinson\nRadicalMedia London",
     about: "Chasing the perfect sunrise: light and optics captured in-camera through practical effects.",
     mp4: "https://video.wixstatic.com/video/af8620_4156a79267b4423792841fcd2b879827/1080p/mp4/file.mp4",
     still: "https://static.wixstatic.com/media/af8620_0203bb1744b842378ea4f204a9604c04~mv2.png/v1/fill/w_1920,h_1080,al_c,q_85/af8620_0203bb1744b842378ea4f204a9604c04~mv2.png" },
 
-  { title: "Fielmann Vision Care", bg: ["#a39429", "#564f1a", "#211e0c"], year: "2026", roles: ["composer"],
+  { title: "Fielmann Vision Care", pick: 3, bg: ["#a39429", "#564f1a", "#211e0c"], year: "2026", roles: ["composer"],
     role: "Composer: US & International TVC, Social",
     credits: "Fielmann Group\nDirected by Marcus Tomlinson\nRadicalMedia London",
     mp4: "https://video.wixstatic.com/video/af8620_77b41c27891b42378ce8ea29d3e4e5d9/720p/mp4/file.mp4", tracks: "TVC",
     links: [{ label: "YouTube", href: "https://www.youtube.com/watch?v=YpIi2MRrhWU" }],
     still: "https://static.wixstatic.com/media/af8620_c133b4cbb69e47dba5b69e46fe57980c~mv2.png/v1/fill/w_1920,h_1080,al_c,q_85/af8620_c133b4cbb69e47dba5b69e46fe57980c~mv2.png" },
 
-  { title: "Habitat × Pinterest", bg: ["#3d2a14", "#21170c", "#120d08"], year: "2025", roles: ["composer"],
+  { title: "Habitat × Pinterest", pick: 4, bg: ["#3d2a14", "#21170c", "#120d08"], year: "2025", roles: ["composer"],
     role: "Music Producer: TVC",
     credits: "The Intruder\nDirected by Coral Amy Brown\nRadicalMedia London",
     about: "A new version of 'L'amour est un oiseau rebelle' (Habanera) from Bizet's Carmen.",
@@ -312,7 +313,7 @@ const PROJECTS = [
     still: "https://static.wixstatic.com/media/af8620_eaf661104c7d4f8fa9514b4c073c78bd~mv2.webp/v1/fill/w_1920,h_1080,al_c,q_85/af8620_eaf661104c7d4f8fa9514b4c073c78bd~mv2.webp" },
 
   /* ----- Book of Jam (comedy duo with Ibrahim Clayton) ----- */
-  { title: "Book of Jam", bg: ["#583421", "#2f1d14", "#120c08"], year: "2018-2026", roles: ["director"],
+  { title: "Book of Jam", pick: 7, bg: ["#583421", "#2f1d14", "#120c08"], year: "2018-2026", roles: ["director"],
     role: "Co-Director · Co-Writer",
     credits: "Comedy writing & directing duo\nJacob Topen & Ibrahim Clayton",
     about: "Making comedy together since 2018. All of our films live at bookofjam.com.",
@@ -321,7 +322,7 @@ const PROJECTS = [
     links: [{ label: "bookofjam.com", href: "https://www.bookofjam.com" },
             { label: "Instagram", href: "https://www.instagram.com/bookofjam_/" }] },
 
-  { title: "A Better Place", bg: ["#69472a", "#382719", "#16100b"], year: "2023", roles: ["director", "editor", "composer"],
+  { title: "A Better Place", pick: 1, bg: ["#69472a", "#382719", "#16100b"], year: "2023", roles: ["director", "editor", "composer"],
     role: "Co-Director · Co-Writer · Actor\nEditor · Composer",
     credits: "Directed by Jacob Topen & Ibrahim Clayton\nBBC Comedy Short Films",
     about: "An oddball family devise a plan to save their failing funeral home from a business rival.",
@@ -349,7 +350,7 @@ const PROJECTS = [
     still: "https://static.wixstatic.com/media/af8620_17f1e264593f4ad283141f1dbe48f6fe~mv2.jpg/v1/fill/w_1920,h_1080,al_c,q_85/af8620_17f1e264593f4ad283141f1dbe48f6fe~mv2.jpg",
     awards: "Short Stuff · BBC Scotland Comedy" },
 
-  { title: "The Troon Revelations", bg: ["#403434", "#231d1d", "#0e0c0c"], year: "2021", roles: ["director", "editor", "composer"],
+  { title: "The Troon Revelations", pick: 8, bg: ["#403434", "#231d1d", "#0e0c0c"], year: "2021", roles: ["director", "editor", "composer"],
     role: "Co-Director · Co-Writer · Actor\nEditor · Composer",
     credits: "Directed by Jacob Topen & Ibrahim Clayton\nSufi Machine Pictures / Dark & Stormy Films",
     about: "Self-declared prophet Dr Kyle Wright claims he has been called to Troon by the ghost of Robbie Burns, tasked with restoring the true gospel for the sake of all mankind.",
@@ -366,7 +367,7 @@ const PROJECTS = [
     vimeo: 1212510534,
     still: "https://static.wixstatic.com/media/af8620_1df87bd6dcd541c9988c3b2c93fbcd4f~mv2.jpg/v1/fill/w_1920,h_1080,al_c,q_85/af8620_1df87bd6dcd541c9988c3b2c93fbcd4f~mv2.jpg" },
 
-  { title: "Landmarks", bg: ["#695521", "#382e14", "#161209"], year: "2026", roles: ["director", "editor", "composer"],
+  { title: "Landmarks", pick: 5, bg: ["#695521", "#382e14", "#161209"], year: "2026", roles: ["director", "editor", "composer"],
     role: "Director · Editor · Composer",
     credits: "Directed by Jacob Topen\nA portrait of artist Nael Hanna",
     about: "A deeply personal portrait film of artist Nael Hanna, exploring his way of seeing the world, his passion for capturing its beauty on canvas, and the role of faith within his work. Shot on location in Scotland.",
@@ -379,7 +380,7 @@ const PROJECTS = [
     youtube: "Phm52OffLQk",
     still: "https://static.wixstatic.com/media/af8620_2062aafcbeac482289abc2e9b815e285~mv2.png/v1/fill/w_1920,h_1080,al_c,q_85/af8620_2062aafcbeac482289abc2e9b815e285~mv2.png" },
 
-  { title: "Antonio's Tale", bg: ["#456d87", "#283c48", "#11181c"], year: "2018", roles: ["director", "editor"],
+  { title: "Antonio's Tale", pick: 6, bg: ["#456d87", "#283c48", "#11181c"], year: "2018", roles: ["director", "editor"],
     role: "Writer · Director · Editor",
     credits: "Written & Directed by Jacob Topen\nDark & Stormy Films",
     about: "A stylised exploration of Alzheimer's disease, the importance of storytelling, and the fleeting nature of life. Shot on the West Coast of Scotland, near Troon.",
@@ -456,7 +457,7 @@ list.innerHTML = PROJECTS.map((p, i) => {
   ].map(l => `<a href="${esc(l.href)}" target="_blank" rel="noopener">${esc(l.label)} ${ICON_ARROW}</a>`).join("");
 
   return `
-  <article class="project" id="${id}" data-roles="${p.roles.join(" ")}" style="--grad:${grad};--stage:${p.bg ? `linear-gradient(120deg, ${p.bg.join(", ")})` : grad}">
+  <article class="project" id="${id}" data-roles="${p.roles.join(" ")}" data-pick="${p.pick || ""}" style="--grad:${grad};--stage:${p.bg ? `linear-gradient(120deg, ${p.bg.join(", ")})` : grad}">
     <button class="row" type="button" aria-expanded="false" aria-controls="panel-${i}">
       <span class="title">${esc(p.title)}</span>
       <span class="year">${esc(p.year)}</span>
@@ -538,16 +539,18 @@ list.addEventListener("click", e => {
   }
 });
 
-/* ---------- routing: #all, #director, #editor, #composer, #info ---------- */
-const FILTERS = ["all", "director", "editor", "composer"];
+/* ---------- routing: #selected (curated), #director, #editor, #composer, #info ---------- */
+const FILTERS = ["selected", "director", "editor", "composer"];
 function route() {
-  const hash = location.hash.slice(1) || "all";
-  const view = hash === "info" ? "info" : FILTERS.includes(hash) ? hash : "all";
+  const hash = location.hash.slice(1) || "selected";
+  const view = hash === "info" ? "info" : FILTERS.includes(hash) ? hash : "selected";
   document.getElementById("view-info").hidden = view !== "info";
   document.getElementById("view-work").hidden = view === "info";
   closeAll();
   list.querySelectorAll(".project").forEach(p => {
-    p.hidden = view !== "all" && !p.dataset.roles.split(" ").includes(view);
+    const pick = p.dataset.pick;
+    p.hidden = view === "selected" ? !pick : !p.dataset.roles.split(" ").includes(view);
+    p.style.order = view === "selected" ? pick : "";
   });
   document.querySelectorAll(".nav [data-view]").forEach(a => {
     if (a.dataset.view === view) a.setAttribute("aria-current", "page");
