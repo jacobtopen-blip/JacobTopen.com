@@ -390,12 +390,13 @@ const PROJECTS = [
     awards: "Winner: Best Director, St Andrews Film Festival 2019\nNominee: Best Editing, Best Score, Scottish Short Film Festival 2019\nNominee: Best Short, INDIs Film Festival 2019" },
 
   /* ----- Original music & solo releases ----- */
-  { title: "Original Music", top: ["composer"], color: [160, 22, 48, 0], year: "Solo", roles: ["composer"],
+  { title: "Original Music", color: [160, 22, 48, 0], year: "Solo", roles: ["composer"],
     role: "Composer",
     credits: "Original music & solo releases\nby Jacob Topen",
     about: "Electronic, contemporary classical and ambient music.",
     mp4: "https://video.wixstatic.com/video/af8620_8b579e00194049ceabbe3b14a6e1c18e/1080p/mp4/file.mp4", tracks: "Sunrise",
-    extra: [{ name: "Solo Releases: Spotify", spotify: "artist/4xWslAraxMlDHTaWze7PTZ" }],
+    extra: [{ name: "Selected Works: SoundCloud", soundcloud: "https://soundcloud.com/user-jst/sets/evolving-sound" },
+            { name: "Solo Releases: Spotify", spotify: "artist/4xWslAraxMlDHTaWze7PTZ" }],
     links: [{ label: "Spotify", href: "https://open.spotify.com/artist/4xWslAraxMlDHTaWze7PTZ" },
             { label: "SoundCloud", href: "https://soundcloud.com/user-jst" }],
     still: "https://static.wixstatic.com/media/af8620_8b579e00194049ceabbe3b14a6e1c18ef003.jpg/v1/fill/w_1920,h_1080,al_c,q_85/af8620_8b579e00194049ceabbe3b14a6e1c18ef003.jpg" },
@@ -464,7 +465,7 @@ list.innerHTML = PROJECTS.map((p, i) => {
   ].map(l => `<a href="${esc(l.href)}" target="_blank" rel="noopener">${esc(l.label)} ${ICON_ARROW}</a>`).join("");
 
   return `
-  <article class="project" id="${id}" data-roles="${p.roles.join(" ")}" data-pick="${p.pick || ""}" data-top="${(p.top || []).join(" ")}" style="--grad:${grad};--stage:${stage || grad}${c && c[3] ? ";--hover-ink:#111" : ""}">
+  <article class="project" id="${id}" data-roles="${p.roles.join(" ")}" data-pick="${p.pick || ""}" style="--grad:${grad};--stage:${stage || grad}${c && c[3] ? ";--hover-ink:#111" : ""}">
     <button class="row" type="button" aria-expanded="false" aria-controls="panel-${i}">
       <span class="title">${esc(p.title)}</span>
       <span class="year">${esc(p.year)}</span>
@@ -548,6 +549,10 @@ list.addEventListener("click", e => {
 
 /* ---------- routing: #selected (curated), #director, #editor, #composer, #info ---------- */
 const FILTERS = ["selected", "director", "editor", "composer"];
+/* projects shown first on a tab, in this order; the rest follow newest first */
+const TAB_ORDER = {
+  composer: ["original-music", "fielmann-vision-care", "issey-miyake-the-making-of-lumi-re-d-issey", "gathering-light"],
+};
 function route() {
   const hash = location.hash.slice(1) || "selected";
   const view = hash === "info" ? "info" : FILTERS.includes(hash) ? hash : "selected";
@@ -557,7 +562,8 @@ function route() {
   list.querySelectorAll(".project").forEach(p => {
     const pick = p.dataset.pick;
     p.hidden = view === "selected" ? !pick : !p.dataset.roles.split(" ").includes(view);
-    p.style.order = view === "selected" ? pick : p.dataset.top.split(" ").includes(view) ? -1 : "";
+    const lead = (TAB_ORDER[view] || []).indexOf(p.id);
+    p.style.order = view === "selected" ? pick : lead >= 0 ? lead - 100 : "";
   });
   document.querySelectorAll(".nav [data-view]").forEach(a => {
     if (a.dataset.view === view) a.setAttribute("aria-current", "page");
