@@ -390,7 +390,7 @@ const PROJECTS = [
     awards: "Winner: Best Director, St Andrews Film Festival 2019\nNominee: Best Editing, Best Score, Scottish Short Film Festival 2019\nNominee: Best Short, INDIs Film Festival 2019" },
 
   /* ----- Original music & solo releases ----- */
-  { title: "Original Music", color: [160, 22, 48, 0], year: "Solo", roles: ["composer"],
+  { title: "Original Music", top: ["composer"], color: [160, 22, 48, 0], year: "Solo", roles: ["composer"],
     role: "Composer",
     credits: "Original music & solo releases\nby Jacob Topen",
     about: "Electronic, contemporary classical and ambient music.",
@@ -464,7 +464,7 @@ list.innerHTML = PROJECTS.map((p, i) => {
   ].map(l => `<a href="${esc(l.href)}" target="_blank" rel="noopener">${esc(l.label)} ${ICON_ARROW}</a>`).join("");
 
   return `
-  <article class="project" id="${id}" data-roles="${p.roles.join(" ")}" data-pick="${p.pick || ""}" style="--grad:${grad};--stage:${stage || grad}${c && c[3] ? ";--hover-ink:#111" : ""}">
+  <article class="project" id="${id}" data-roles="${p.roles.join(" ")}" data-pick="${p.pick || ""}" data-top="${(p.top || []).join(" ")}" style="--grad:${grad};--stage:${stage || grad}${c && c[3] ? ";--hover-ink:#111" : ""}">
     <button class="row" type="button" aria-expanded="false" aria-controls="panel-${i}">
       <span class="title">${esc(p.title)}</span>
       <span class="year">${esc(p.year)}</span>
@@ -557,7 +557,7 @@ function route() {
   list.querySelectorAll(".project").forEach(p => {
     const pick = p.dataset.pick;
     p.hidden = view === "selected" ? !pick : !p.dataset.roles.split(" ").includes(view);
-    p.style.order = view === "selected" ? pick : "";
+    p.style.order = view === "selected" ? pick : p.dataset.top.split(" ").includes(view) ? -1 : "";
   });
   document.querySelectorAll(".nav [data-view]").forEach(a => {
     if (a.dataset.view === view) a.setAttribute("aria-current", "page");
