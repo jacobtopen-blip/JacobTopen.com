@@ -552,6 +552,11 @@ const FILTERS = ["selected", "director", "editor", "composer"];
 /* projects shown first on a tab, in this order; the rest follow newest first */
 const TAB_ORDER = {
   composer: ["original-music", "fielmann-vision-care", "issey-miyake-the-making-of-lumi-re-d-issey", "gathering-light"],
+  director: ["a-better-place", "gathering-light", "book-of-jam"],
+};
+/* projects pushed to the end of a tab, in this order */
+const TAB_LAST = {
+  director: ["landmarks"],
 };
 function route() {
   const hash = location.hash.slice(1) || "selected";
@@ -563,7 +568,8 @@ function route() {
     const pick = p.dataset.pick;
     p.hidden = view === "selected" ? !pick : !p.dataset.roles.split(" ").includes(view);
     const lead = (TAB_ORDER[view] || []).indexOf(p.id);
-    p.style.order = view === "selected" ? pick : lead >= 0 ? lead - 100 : "";
+    const last = (TAB_LAST[view] || []).indexOf(p.id);
+    p.style.order = view === "selected" ? pick : lead >= 0 ? lead - 100 : last >= 0 ? last + 100 : "";
   });
   document.querySelectorAll(".nav [data-view]").forEach(a => {
     if (a.dataset.view === view) a.setAttribute("aria-current", "page");
