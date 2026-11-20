@@ -269,6 +269,7 @@
    credits  - right-hand column; \n for a line break
    role     - what Jacob did, shown at the top of the open panel
    vimeo    - Vimeo video id; the player loads as soon as the row opens
+   vimeoHash - the key from a private Vimeo link (vimeo.com/ID/KEY)
    youtube  - YouTube video id (instead of vimeo)
    mp4      - path to a video file in this folder, e.g. "video/fielmann.mp4"
    spotify  - Spotify embed path, e.g. "track/ID", "album/ID", "artist/ID"
@@ -381,6 +382,12 @@ const PROJECTS = [
     youtube: "Phm52OffLQk",
     still: "https://static.wixstatic.com/media/af8620_2062aafcbeac482289abc2e9b815e285~mv2.png/v1/fill/w_1920,h_1080,al_c,q_85/af8620_2062aafcbeac482289abc2e9b815e285~mv2.png" },
 
+  { title: "Hidden Maverick: Mirror", color: [220, 14, 40, 0], year: "2025", roles: ["editor", "composer"],
+    role: "Editor · Music Composer",
+    credits: "Product launch film",
+    vimeo: 1150487684, vimeoHash: "845a932d0b",
+    still: "https://i.vimeocdn.com/video/2101372518-abc95f3557b15992c09f233c8ba14a4e4403d8f5ecc768af9ef99936758d3b4b-d_1280" },
+
   { title: "Antonio's Tale", pick: 5, color: [215, 35, 45, 0], year: "2018", roles: ["director", "editor"],
     role: "Writer · Director · Editor",
     credits: "Written & Directed by Jacob Topen\nDark & Stormy Films",
@@ -428,7 +435,7 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">
 const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 function embedFor(m) {
   if (m.mp4) return { src: m.mp4, file: true };
-  if (m.vimeo) return { src:`https://player.vimeo.com/video/${m.vimeo}?title=0&byline=0&portrait=0&color=ffffff&dnt=1` };
+  if (m.vimeo) return { src:`https://player.vimeo.com/video/${m.vimeo}?${m.vimeoHash ? `h=${m.vimeoHash}&` : ""}title=0&byline=0&portrait=0&color=ffffff&dnt=1` };
   if (m.youtube) return { src: `https://www.youtube-nocookie.com/embed/${m.youtube}?rel=0` };
   if (m.spotify) return { src: `https://open.spotify.com/embed/${m.spotify}?theme=0`, audio: true };
   if (m.soundcloud) return { src: `https://w.soundcloud.com/player/?url=${encodeURIComponent(m.soundcloud)}&color=%23ffffff&visual=true`, audio: true };
@@ -451,7 +458,7 @@ list.innerHTML = PROJECTS.map((p, i) => {
   const grad = `linear-gradient(90deg, ${tone.join(", ")})`;
   const still = p.still || (p.thumb ? `https://i.vimeocdn.com/video/${p.thumb}` : "");
   const players = [
-    ...(p.vimeo || p.youtube || p.mp4 ? [{ name: p.tracks || "Film", vimeo: p.vimeo, youtube: p.youtube, mp4: p.mp4 }] : []),
+    ...(p.vimeo || p.youtube || p.mp4 ? [{ name: p.tracks || "Film", vimeo: p.vimeo, vimeoHash: p.vimeoHash, youtube: p.youtube, mp4: p.mp4 }] : []),
     ...(p.spotify ? [{ name: "Listen", spotify: p.spotify }] : []),
     ...(p.soundcloud ? [{ name: "Listen", soundcloud: p.soundcloud }] : []),
     ...(p.extra || []),
